@@ -1,0 +1,107 @@
+# pip install boto3
+
+import boto3
+
+ec2_client = boto3.client('ec2', region_name='us-east-1')
+
+response = ec2_client.describe_key_pairs()
+response = ec2_client.create_key_pair(
+    KeyName='cog-sandbox-erick'
+)
+response = ec2_client.describe_key_pairs()
+response = ec2_client.create_security_group(
+    GroupDescription='launch-wizard-6 created 2020-04-24T16:50:11.045-05:00',
+    GroupName='launch-wizard-6',
+    VpcId='vpc-52480428'
+)
+response = ec2_client.describe_security_groups()
+response = ec2_client.authorize_security_group_ingress(
+    GroupId='sg-00e326d860ae391b3',
+    IpPermissions=[
+        {
+            'IpProtocol': 'tcp',
+            'FromPort': 0,
+            'ToPort': 65535,
+            'IpRanges': [
+                {
+                    'CidrIp': '187.190.26.133/32'
+                }
+            ],
+            'Ipv6Ranges': []
+        },
+        {
+            'IpProtocol': 'udp',
+            'FromPort': 0,
+            'ToPort': 65535,
+            'IpRanges': [
+                {
+                    'CidrIp': '187.190.26.133/32'
+                }
+            ],
+            'Ipv6Ranges': []
+        }
+    ]
+)
+response = ec2_client.run_instances(
+    ImageId='ami-06b0c9a730e8035be',
+    MaxCount=1,
+    MinCount=1,
+    KeyName='cog-sandbox-erick',
+    SecurityGroupIds=[
+        'sg-00e326d860ae391b3'
+    ],
+    InstanceType='t3a.small',
+    Placement={
+        'Tenancy': 'default'
+    },
+    Monitoring={
+        'Enabled': False
+    },
+    DisableApiTermination=False,
+    InstanceInitiatedShutdownBehavior='stop',
+    CreditSpecification={
+        'CpuCredits': 'unlimited'
+    },
+    TagSpecification=[
+        {
+            'ResourceType': 'instance',
+            'Tag': [
+                {
+                    'Key': 'schedule',
+                    'Value': '6:00am-6:00pm-est-m-su'
+                },
+                {
+                    'Key': 'expirationdate ',
+                    'Value': '24 april 2020'
+                }
+            ]
+        },
+        {
+            'ResourceType': 'volume',
+            'Tag': [
+                {
+                    'Key': 'schedule',
+                    'Value': '6:00am-6:00pm-est-m-su'
+                },
+                {
+                    'Key': 'expirationdate ',
+                    'Value': '24 april 2020'
+                }
+            ]
+        }
+    ],
+    EbsOptimized=True,
+    CapacityReservationSpecification={
+        'CapacityReservationPreference': 'open'
+    },
+    BlockDeviceMappings=[
+        {
+            'DeviceName': '/dev/sda1',
+            'Ebs': {
+                'VolumeSize': 30,
+                'DeleteOnTermination': True,
+                'VolumeType': 'gp2'
+            }
+        }
+    ]
+)
